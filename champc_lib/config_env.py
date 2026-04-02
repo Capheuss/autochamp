@@ -98,19 +98,25 @@ class env_config:
       utils.check_continue(self.fields["yall"]) 
 
   def config_check(self, command):
-   
-    #check required fields
+
+    #check required fields (always)
     self.check_fields(self.required_fields, 0)
-    #check optional fields
+    #check optional fields (always, non-fatal)
     self.check_fields(self.optional_fields, 1)
-    #check build fields
-    self.check_fields(self.required_build_fields, 0)
-    #check launch fields
-    self.check_fields(self.required_launch_fields, 0)
-    #check collect fields
-    self.check_fields(self.required_collect_fields, 0)
-    #check hprc fields
-    self.check_fields(self.required_hprc_fields, 0)
+
+    #check build fields only when building
+    if command.build:
+      self.check_fields(self.required_build_fields, 0)
+
+    #check launch and hprc fields only when launching
+    if command.launch:
+      self.check_fields(self.required_launch_fields, 0)
+      if self.fields["HPRC"]:
+        self.check_fields(self.required_hprc_fields, 0)
+
+    #check collect fields only when collecting
+    if command.collect:
+      self.check_fields(self.required_collect_fields, 0)
 
     #failed_check = [] 
     #for f in self.required_fields:
@@ -157,4 +163,3 @@ class env_config:
         print("Username {} does not exist".format(self.fields["username"]))
         exit()
     return
-  
