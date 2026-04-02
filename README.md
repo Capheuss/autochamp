@@ -21,7 +21,7 @@ autochamp/
 └── champc_lib/
     ├── build.py               # ChampSim build logic
     ├── launch.py              # Job launch logic (local and SLURM)
-    ├── launch_template.txt # SLURM job template (Lonestar6 format)
+    ├── launch_template.txt    # SLURM job template (Lonestar6 format)
     ├── collector.py           # Statistics collection logic
     ├── config_env.py          # Configuration loading and validation
     └── utils.py               # Shared utilities
