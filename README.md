@@ -37,7 +37,7 @@ AutoChamp is intended to live inside the ChampSim directory:
 
 ```bash
 cd ChampSim
-git clone https://github.com/Capheuss/autochamp.git
+git submodule update --init
 ```
 
 ### 2. Configure AutoChamp
@@ -116,7 +116,7 @@ Requires `build_list` and `configs_path` to be set in the config.
 python3 autochamp/auto-champ.py -f autochamp/autochamp-config.cfg -l
 ```
 
-With `HPRC = 1`, generates a SLURM job file from `launch_template_new.txt` for each binary/workload pair and submits it via `sbatch`. AutoChamp monitors the queue and throttles submission once `job_limit` is reached, polling every 30 seconds.
+With `HPRC = 1`, generates a SLURM job file from `launch_template.txt` for each binary/workload pair and submits it via `sbatch`. AutoChamp monitors the queue and throttles submission once `job_limit` is reached, polling every 30 seconds.
 
 ### Collect
 
