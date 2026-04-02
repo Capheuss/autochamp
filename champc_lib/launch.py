@@ -96,8 +96,8 @@ def sbatch_launch(env_con, launch_str, result_str, output_name):
   temp_launch.close()
 
   print(f"Running command: sbatch {launchf}")
-  os.system(f"sbatch launch_f")
-  os.system(f"rm {launch_f}")
+  os.system(f"sbatch {launchf}")
+  os.system(f"rm {launchf}")
 
 def launch_handler(env_con):
 

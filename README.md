@@ -1,68 +1,148 @@
 # AutoChamp
-AutoChamp is meant as a tool to assist ChampSim users with building, launching, and collecting statistics from simulations.
-To enable different features (launching, building, etc.) the fields in the configuration file must be filled out. Once set up, the environment allows for multiple configurations to be built and launched at a time, organizing the simulations' outputs into seperate directories to allow AutoChamp to collect from multiple simulation result files at once. 
 
-AutoChamp is intended to provide very basic functionality and infrastructure for new users to expand as necessary.
+AutoChamp is a tool for automating the building, launching, and result collection of [ChampSim](https://github.com/ChampSim/ChampSim) simulations. It supports launching large numbers of simulations across multiple binaries and workloads, organizing outputs by date and run index, and scraping statistics from ChampSim's JSON output.
 
-DISCLAIMER: This infrastructure is currently untested for the wide range of environments ChampSim might be used in. Please post any issues you encounter and submit pull requests as needed. 
+This fork is configured for use on **TACC Lonestar6** with SLURM job submission.
 
-## Setting up and Running AutoChamp
+> **Disclaimer:** This infrastructure is currently untested across the full range of environments ChampSim may be used in. Please open issues for any bugs encountered and submit pull requests as needed.
 
-### Setup
-Note: This is a draft and quick introduction to using AutoChamp in its current state.
-	1) Download ChampSim
-	2) Change to the ChampSim directory
-	3) Download autochamp into the champsim directory
-	4) Open autochamp/autochamp-config.cfg and set champsim_root to the champsim directory.
-	5) Fill out the fields in autochamp-config.cfg
- 
-Options:
+---
 
-	-h, --help : Show this help message and exit
-	-f CONFIG, --config CONFIG : Configuration file needed to load in auto-champ's configurations.
-	-b, --build : Build the files in the configurations path and defined in build_list in control.cfg.
-	-l, --launch : Launch binarys in file defined in binary_list with workloads in workload_list defined in the control file
-	-c, --collect : Collect command reads JSON file embedded in the results output file. NOTE: Currently only supports single trace outputs and it scrapes from the "sim" section of ChampSim's output
-	-p, --print_stats : Prints the stats available for the collect command/field.
-  -y, --yall : Says yes to all prompts.
+## Repository Structure
 
-### Building ChampSim
+```
+autochamp/
+├── auto-champ.py              # Main entry point
+├── autochamp-config.cfg       # Configuration file (fill this out before use)
+├── binary_list.txt            # List of binaries to launch
+├── build_list.txt             # List of configurations to build
+├── cvp_subset.txt             # Workload list (CVP trace subset)
+├── to_collect.txt             # Stats fields to scrape from JSON output
+└── champc_lib/
+    ├── build.py               # ChampSim build logic
+    ├── launch.py              # Job launch logic (local and SLURM)
+    ├── launch_template_new.txt # SLURM job template (Lonestar6 format)
+    ├── collector.py           # Statistics collection logic
+    ├── config_env.py          # Configuration loading and validation
+    └── utils.py               # Shared utilities
+```
 
-Building with AutoChamp requires the following fields in the configration file be populated:
+---
 
-  build_list - path to a text file containing a configuration file name per line.
-	configs_path - path to the directory containing the configuration files
- 
-From the champsim directory run:
+## Setup
 
-	 python3 autochamp/auto-champ.py -f autochamp/autochamp-config.cfg -b
-  
-### Launching ChampSim
+### 1. Install AutoChamp into ChampSim
 
-Fill out the parameters for running multiple simulations
+AutoChamp is intended to live inside the ChampSim directory:
 
-  HPRC - determines if the jobs will launch using slurm
-  Enable_json_output - passes json output flag to champsim. Note: This must be on in order to use the collect (-c) flag
-	Warmup and sim_inst - describes the number of instructions used for warm up and simulation
-	Binaries path - the location of the binaries you want to launch
-	Results path - where the results will be written
-	Workload path - location of the traces listed in workload_list
-	Binary list - path to file that lists which binaries to launch
-	Launch template - used to create job files for use with slurm
- 
-From the champsim directory run:
+```bash
+cd ChampSim
+git clone https://github.com/Capheuss/autochamp.git
+```
 
-  python3 autochamp/auto-champ.py -f autochamp/autochamp-config.cfg -l
+### 2. Configure AutoChamp
 
-### Collecting Statistics
+Open `autochamp/autochamp-config.cfg` and fill out the required fields. Key fields are described below.
 
-ChampSim outputs the results of the simulations to the <code>output_path</code> based on the date the result was generated (note launching simulations overnight generates a folder for the new date) and seperates the simulations into folders based on the number of launches previously done in that day. i.e. Launching 6 different sets of simulations on 1/1/2023 will place the results in 2023-01-01/1/ through /6/.
+#### Job File Generation (SLURM / Lonestar6)
 
-Fill out the parameters for collecting stats:
-	
-	results_collect_path - where the results you want to scrape are
-	stats_list - this file decribes which stats to collect
+| Field | Description |
+|---|---|
+| `username` | Your TACC username — used for `squeue` job load checks |
+| `job_limit` | Maximum number of concurrently queued jobs |
+| `limit_hours` | Wall clock time limit per job (hours) |
+| `ntasks` | Number of MPI tasks (typically `1` for serial jobs) |
+| `partition` | SLURM queue/partition (e.g. `normal`, `development`, `gpu`) |
+| `account` | TACC allocation name to charge |
+| `mail` | Email address for job notifications |
+| `num_cores` | Number of cores per simulation |
+| `launch_file` | Path where temporary job files are written before submission |
+| `launch_template` | Path to the SLURM job template file |
 
-The <code>stats_list</code> is filled out based on the JSON structure outputted by ChampSim with the <code>enable_json_output</code> flag. To make it easier to fill out, running AutoChamp with the <code>-c -p<\code> flags with a valid <code>results_collect_path<\code> displays the levels in the JSON output. Examples are included in <code>to_collect.txt</code>
-	
- 
+#### Simulation Parameters
+
+| Field | Description |
+|---|---|
+| `HPRC` | `1` to submit via SLURM, `0` to run locally |
+| `enable_json_output` | `1` to pass `--json` flag to ChampSim (required for `--collect`) |
+| `warmup` | Number of warmup instructions |
+| `sim_inst` | Number of simulation instructions |
+| `binaries_path` | Path to the compiled ChampSim binaries |
+| `results_path` | Root directory where simulation outputs are written |
+| `workload_path` | Directory containing trace files |
+| `binary_list` | File listing which binaries to run |
+| `workload_list` | File listing which traces to run |
+
+#### Statistics Collection
+
+| Field | Description |
+|---|---|
+| `results_collect_path` | Path to the results directory to scrape |
+| `stats_list` | File describing which JSON fields to collect |
+| `baseline` | *(Optional)* Binary name to use as IPC baseline for comparisons |
+
+---
+
+## Usage
+
+All commands are run from the ChampSim directory using:
+
+```bash
+python3 autochamp/auto-champ.py -f autochamp/autochamp-config.cfg [OPTIONS]
+```
+
+### Options
+
+| Flag | Description |
+|---|---|
+| `-f`, `--config` | Path to the configuration file (required) |
+| `-b`, `--build` | Build ChampSim binaries from configurations in `build_list` |
+| `-l`, `--launch` | Launch simulations for all binary/workload combinations |
+| `-c`, `--collect` | Collect statistics from simulation JSON outputs |
+| `-p`, `--print_stats` | Print the available JSON stat fields without scraping |
+| `-y`, `--yall` | Automatically confirm all prompts (use with caution) |
+
+### Build
+
+```bash
+python3 autochamp/auto-champ.py -f autochamp/autochamp-config.cfg -b
+```
+
+Requires `build_list` and `configs_path` to be set in the config.
+
+### Launch
+
+```bash
+python3 autochamp/auto-champ.py -f autochamp/autochamp-config.cfg -l
+```
+
+With `HPRC = 1`, generates a SLURM job file from `launch_template_new.txt` for each binary/workload pair and submits it via `sbatch`. AutoChamp monitors the queue and throttles submission once `job_limit` is reached, polling every 30 seconds.
+
+### Collect
+
+```bash
+python3 autochamp/auto-champ.py -f autochamp/autochamp-config.cfg -c
+```
+
+Scrapes statistics defined in `stats_list` from ChampSim's JSON output files. Run with `-p` first to explore available fields:
+
+```bash
+python3 autochamp/auto-champ.py -f autochamp/autochamp-config.cfg -c -p
+```
+
+---
+
+## Results Structure
+
+Simulation outputs are organized under `results_path` by date and sequential run index:
+
+```
+results/
+└── YYYY-MM-DD/
+    └── 1_cores/
+        ├── 1/    # First launch set of the day
+        ├── 2/    # Second launch set of the day
+        └── ...
+```
+
+> **Note:** Simulations launched overnight will have their outputs placed in a folder for the new date.

@@ -1,16 +1,18 @@
-  #!/bin/bash
-  ##ENVIRONMENT SETTINGS; CHANGE WITH CAUTION
-  #SBATCH --get-user-env=L #Replicate login environment
+#!/bin/bash
+#----------------------------------------------------
+# Auto-generated ChampSim job script
+#   for TACC Lonestar6 SKX nodes
+#----------------------------------------------------
 
-  ##NECESSARY JOB SPECIFICATIONS\n")
-  #SBATCH --job-name={output_name}                 # Set the job name to \"JobExample1\"
-  #SBATCH --time={limit_hours}:00:00                         # Set the wall clock limit to 50h
-  #SBATCH --ntasks={ntasks}                                  # Request 1 task
-  #SBATCH --mem=1024M                                         # Request 1GB per node
-  #SBATCH --output={result_str}.%j   #Send stdout/err to \"Example1Out.[jobID]\"
+#SBATCH -J {output_name}                        # Job name
+#SBATCH -o {result_str}.o%j                     # stdout output file (%j = job ID)
+#SBATCH -e {result_str}.e%j                     # stderr error file (%j = job ID)
+#SBATCH -p {partition}                          # Queue (partition) name
+#SBATCH -N 1                                    # Total # of nodes (must be 1 for serial)
+#SBATCH -n {ntasks}                             # Total # of mpi tasks (should be 1 for serial)
+#SBATCH -t {limit_hours}:00:00                  # Wall clock limit (hh:mm:ss)
+#SBATCH --mail-user={mail}                      # Email address for notifications
+#SBATCH --mail-type=all                         # Send email at begin and end of job
+#SBATCH -A {account}                            # Allocation name
 
-  ##OPTIONAL JOB SPECIFICATIONS
-  ##SBATCH --mail-type=FAIL              		                # Send email for failed job events only
-  ##SBATCH --mail-user={mail} 	                    # Send all emails to email_address
-  ##SBATCH --account={account}                   # Change once hours are used up
-  ##First Executable Line
+# First Executable Line

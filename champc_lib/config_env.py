@@ -13,7 +13,7 @@ class env_config:
     self.required_build_fields = ["build_list", "configs_path"]
     self.required_launch_fields = ["workload_path", "workload_list", "binaries_path", "warmup", "sim_inst", "enable_json_output", "results_path"]
     self.required_collect_fields = ["stats_list", "enable_json_output", "results_collect_path"]
-    self.required_hprc_fields = ["limit_hours", "ntasks", "account", "HPRC",]
+    self.required_hprc_fields = ["limit_hours", "ntasks", "account", "partition", "HPRC",]
 
     self.required_fields = ["champsim_root"] 
                     
