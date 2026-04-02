@@ -1,17 +1,6 @@
 import os
-import sys
-import json
-import importlib
-import tempfile
 import itertools
 import champc_lib.utils as utils
-
-def parse_json(fname):
-    with open(fname, "r") as rfp:
-        parsed = json.load(rfp)
-        if isinstance(parsed, list):
-            return parsed
-        return [parsed]
 
 def parse_targets_file(build_list, config_path):
     with open(build_list) as build_file:
@@ -26,14 +15,6 @@ def parse_targets_file(build_list, config_path):
 
 
 def build_champsim(env_con):
-    #spec = importlib.util.spec_from_file_location('.config', os.path.join(env_con.fields['champsim_root'], 'config'))
-    #champsim_config = importlib.util.module_from_spec(spec)
-    #spec.loader.exec_module(champsim_config)
-
-    sys.path.append(env_con.fields['champsim_root'])
-    import config.filewrite
-    import config.parse
-
     build_list = env_con.fields["build_list"]
     if build_list == "all":
         targets = itertools.chain(*((os.path.join(base,f) for f in files) for base,_,files in os.walk(env_con.fields['configs_path'])))
@@ -41,19 +22,7 @@ def build_champsim(env_con):
     else:
         targets = parse_targets_file(build_list, env_con.fields['configs_path'])
 
-    #TODO: Remove temp build fix
     for f in targets:
         print(f"Building configuration: {f}")
         os.system("{}config.sh {}".format(env_con.fields['champsim_root'], f))
         os.system("make -C "+env_con.fields['champsim_root'])
-    ######################
-    #TODO: Fix code below
-    #parsed_jsons = itertools.chain(*(parse_json(f) for f in targets))
-    #with tempfile.TemporaryDirectory() as objdir_name:
-    #    assert(os.path.exists(env_con.fields['binaries_path']))
-    #    with config.filewrite.FileWriter(env_con.fields['binaries_path'], objdir_name) as wr:
-    #        for c in parsed_jsons:
-    #            wr.write_files(config.parse.parse_config(c))
-
-    #   os.system("make -C "+env_con.fields['champsim_root'])
-    ######################
