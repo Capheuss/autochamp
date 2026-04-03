@@ -105,7 +105,7 @@ python3 autochamp/auto-champ.py -f autochamp/autochamp-config.cfg [OPTIONS]
 ### Build
 
 ```bash
-python3 autochamp/auto-champ.py -f autochamp/autochamp-config.cfg -b
+python3 autochamp/auto-champ.py -f autochamp_config/autochamp-config.cfg -b
 ```
 
 Requires `build_list` and `configs_path` to be set in the config.
@@ -113,7 +113,7 @@ Requires `build_list` and `configs_path` to be set in the config.
 ### Launch
 
 ```bash
-python3 autochamp/auto-champ.py -f autochamp/autochamp-config.cfg -l
+python3 autochamp/auto-champ.py -f autochamp_config/autochamp-config.cfg -l
 ```
 
 With `HPRC = 1`, generates a SLURM job file from `launch_template.txt` for each binary/workload pair and submits it via `sbatch`. AutoChamp monitors the queue and throttles submission once `job_limit` is reached, polling every 30 seconds.
@@ -121,13 +121,13 @@ With `HPRC = 1`, generates a SLURM job file from `launch_template.txt` for each 
 ### Collect
 
 ```bash
-python3 autochamp/auto-champ.py -f autochamp/autochamp-config.cfg -c
+python3 autochamp/auto-champ.py -f autochamp_config/autochamp-config.cfg -c
 ```
 
 Scrapes statistics defined in `stats_list` from ChampSim's JSON output files. Run with `-p` first to explore available fields:
 
 ```bash
-python3 autochamp/auto-champ.py -f autochamp/autochamp-config.cfg -c -p
+python3 autochamp/auto-champ.py -f autochamp_config/autochamp-config.cfg -c -p
 ```
 
 ---
