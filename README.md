@@ -11,20 +11,23 @@ This fork is configured for use on **TACC Lonestar6** with SLURM job submission.
 ## Repository Structure
 
 ```
-autochamp/
-├── auto-champ.py              # Main entry point
-├── autochamp-config.cfg       # Configuration file (fill this out before use)
-├── binary_list.txt            # List of binaries to launch
-├── build_list.txt             # List of configurations to build
-├── cvp_subset.txt             # Workload list (CVP trace subset)
-├── to_collect.txt             # Stats fields to scrape from JSON output
-└── champc_lib/
-    ├── build.py               # ChampSim build logic
-    ├── launch.py              # Job launch logic (local and SLURM)
-    ├── launch_template.txt    # SLURM job template (Lonestar6 format)
-    ├── collector.py           # Statistics collection logic
-    ├── config_env.py          # Configuration loading and validation
-    └── utils.py               # Shared utilities
+ChampSim/
+├── autochamp/                 # This submodule
+│   ├── auto-champ.py          # Main entry point
+│   └── champc_lib/
+│       ├── build.py               # ChampSim build logic
+│       ├── launch.py              # Job launch logic (local and SLURM)
+│       ├── launch_template.txt    # SLURM job template (Lonestar6 format)
+│       ├── collector.py           # Statistics collection logic
+│       ├── config_env.py          # Configuration loading and validation
+│       └── utils.py               # Shared utilities
+└── autochamp_config/          # Configuration files (separate from submodule)
+    ├── autochamp-config.cfg   # Main configuration file (fill this out before use)
+    ├── binary_list.txt        # List of binaries to launch
+    ├── build_list.txt         # List of configurations to build
+    ├── cvp_subset.txt         # Workload list (CVP trace subset)
+    ├── to_collect.txt         # Stats fields to scrape from JSON output
+    └── configurations/        # Per-binary JSON config files
 ```
 
 ---
@@ -42,7 +45,7 @@ git submodule update --init
 
 ### 2. Configure AutoChamp
 
-Open `autochamp/autochamp-config.cfg` and fill out the required fields. Key fields are described below.
+Open `autochamp_config/autochamp-config.cfg` and fill out the required fields. Key fields are described below.
 
 #### Job File Generation (SLURM / Lonestar6)
 
@@ -85,10 +88,10 @@ Open `autochamp/autochamp-config.cfg` and fill out the required fields. Key fiel
 
 ## Usage
 
-All commands are run from the ChampSim directory using:
+All commands are run from the `ChampSim/` directory using:
 
 ```bash
-python3 autochamp/auto-champ.py -f autochamp/autochamp-config.cfg [OPTIONS]
+python3 autochamp/auto-champ.py -f autochamp_config/autochamp-config.cfg [OPTIONS]
 ```
 
 ### Options
