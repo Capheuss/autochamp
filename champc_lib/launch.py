@@ -147,7 +147,7 @@ def launch_handler(env_con):
   sim_inst = env_con.fields["sim_inst"]
 
   results_str = "" 
-  launch_str = "{}{} --warmup_instructions {} --simulation_instructions {} {}\n" 
+  launch_str = "{}{} --warmup-instructions {} --simulation-instructions {} {}\n" 
   results_output_s = ""
   trace_str = "" 
   output_name = "" 
