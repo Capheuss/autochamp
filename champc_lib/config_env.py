@@ -19,7 +19,7 @@ class env_config:
                     
     self.required_bool = ["HPRC", "enable_json_output"]
     self.optional_fields = ["launch_file", "baseline", "launch_template","yall"]
-    self.ignore_fields = ["output_name", "result_str"]
+    self.ignore_fields = ["output_name", "log_str", "result_str"]
 
   def add_ignore_bin(self, bin_str):
     self.ignore_bin.append(bin_str)
